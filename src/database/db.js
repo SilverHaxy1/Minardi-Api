@@ -1,11 +1,20 @@
-const mongoose = require("mongoose");
+const nano = require("nano")("http://localhost:5984"); 
 
-const connectDatabase = () => {
-    console.log("Wait connection to the database")
+const connectDatabase = async () => {
+    console.log("Wait connection to the database");
 
-    mongoose.connect("mongodb+srv://arthur1:a12345678@cluster0.aujuf.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
-    .then(() => console.log("MongoDB Atlas Connected"))
-    .catch((error) => console.log(error));
-}
+    try {
+       
+        const couchInfo = await nano.db.get('user_db'); 
+        console.log("CouchDB Connected:", couchInfo);
+    } catch (error) {
+        console.error("CouchDB Connection Error:", error.message);
+
+        if (error.statusCode === 404) {
+            await nano.db.create('user_db');
+            console.log("Database 'user_db' created!");
+        }
+    }
+};
 
 module.exports = connectDatabase;
